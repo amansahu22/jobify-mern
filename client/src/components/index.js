@@ -4,5 +4,7 @@
 
 
 import Logo from "./Logo";
+import FormRow from "./FormRow";
+import Alert from "./Alert";
 
-export { Logo };
+export { Logo, FormRow, Alert };
