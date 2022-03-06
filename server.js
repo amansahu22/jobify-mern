@@ -6,15 +6,26 @@ dotenv.config()
 
 import ConnectDatabase from './db/connect-db.js';
 
+// routers
+import authRouter from './routes/auth-routes.js'
+
+import jobsRouter from './routes/job-routes.js'
+
 //middleware
 
 import notFoundMiddleware from './middlewares/not-found.js';
 import errorHandleMiddleware from './middlewares/error-handle.js';
 
 
+app.use(express.json()) //this is a in-built middleware from express which provide us json data in case of patch and post requests
+
 app.get('/', (req, res, next) => {
     res.send('Welcome');
 })
+
+app.use('/api/v1/auth', authRouter);
+
+app.use('/api/v1/jobs', jobsRouter)
 
 app.use(notFoundMiddleware)
 //it means express after listening for all above routes come on this and use can serve for can type of req(get,post...) and for any url.
