@@ -1,3 +1,5 @@
+import User from "../models/User.js";
+
 const Register = (req, res) => {
     res.send('Register');
 }
