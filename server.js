@@ -1,5 +1,7 @@
 import express from 'express';
 const app = express();
+
+import 'express-async-errors'
 import dotenv from 'dotenv';
 //this is gonna look for .env file in root directory 
 dotenv.config()
