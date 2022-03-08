@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
-import validator from 'validator'
+import validator from 'validator';
+import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -42,5 +43,17 @@ const userSchema = new mongoose.Schema({
     },
 
 })
+
+//this is a mongoose middleware which will be called by mongoose before saving the document(generally where we are calling .create or .save method)
+
+//we can not use arrow function here because then we will not have this keyword reference
+userSchema.pre('save', async function () {
+
+    //here this refers to the newly created instance created by User model(so it will have access to all the fields we passed to it)
+
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+
+});
 
 export default mongoose.model('User', userSchema);

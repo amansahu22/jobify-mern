@@ -18,7 +18,7 @@ import { BadRequestError } from '../errors/index.js'
 //     }
 // }
 
-//instead of writing this try and catch block again and again we are using express-async-errors package which will do this thing for as under the hood
+//instead of writing this try and catch block again and again we are using express-async-errors package which will do this thing for us under the hood
 
 const Register = async (req, res) => {
 
@@ -32,7 +32,7 @@ const Register = async (req, res) => {
         throw new BadRequestError('Email already exist, provide different email')
     }
 
-    const user = await User.create(name, email, password);
+    const user = await User.create({ name, email, password });
     res.status(StatusCodes.CREATED).send(user);
 }
 
