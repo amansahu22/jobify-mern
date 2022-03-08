@@ -33,7 +33,20 @@ const Register = async (req, res) => {
     }
 
     const user = await User.create({ name, email, password });
-    res.status(StatusCodes.CREATED).send(user);
+    const token = user.createJWT();
+
+    const response = {
+        user: {
+            email: user.email,
+            name: user.name,
+            lastName: user.lastName,
+            location: user.location
+        },
+        token,
+        location: user.location
+    }
+
+    res.status(StatusCodes.CREATED).send(response);
 }
 
 const Login = (req, res) => {

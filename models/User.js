@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import validator from 'validator';
 import bcrypt from "bcryptjs";
+import jwt from 'jsonwebtoken';
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -27,6 +28,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Please Provide Passwoed'],
         minlength: 6,
+        select: false //this means when we will find our user that time password feild will not come there, but it would not work in the case of .create method that's why we are hardcoding there
     },
 
     lastName: {
@@ -55,5 +57,12 @@ userSchema.pre('save', async function () {
     this.password = await bcrypt.hash(this.password, salt);
 
 });
+
+//monogoose have many in-built methods which we can call on the instances that were created from Model(for example user.save())
+//we can also add our own custom methods on the schema so that we can have access to those methods on the created instances
+
+userSchema.methods.createJWT = function () {
+    return jwt.sign({ userId: this._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_LIFETIME })
+}
 
 export default mongoose.model('User', userSchema);
