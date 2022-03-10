@@ -1,4 +1,5 @@
-import { useState } from "react"
+import { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom'
 import { Logo } from "../components"
 import Wrapper from '../assets/wrappers/RegisterPage';
 import { FormRow, Alert } from "../components";
@@ -14,8 +15,17 @@ const initialState = {
 const Register = () => {
 
     const [values, setValues] = useState(initialState);
+    const navigate = useNavigate();
 
-    const { isAlertShown, isLoading, displayAlert } = useAppContext()
+    const { user, isAlertShown, isLoading, displayAlert, registerUser } = useAppContext()
+
+    useEffect(() => {
+        if (user) {
+            setTimeout(() => {
+                navigate('/')
+            }, 3000) //after 3 seconds redirecting to dashboard page 
+        }
+    }, [user, navigate])
 
     const onChangeHandler = (e) => {
         setValues({ ...values, [e.target.name]: e.target.value })
@@ -27,11 +37,19 @@ const Register = () => {
 
     const onSubmitHandler = (e) => {
         e.preventDefault();
-        if (!values.email || !values.password || (!values.isMember && !values.name)) {
+
+        const { email, password, name, isMember } = values
+        if (!email || !password || (!isMember && !name)) {
             displayAlert()
             return;
         }
-        console.log(values)
+        if (isMember) {
+            console.log('you are already a member')
+        } else {
+            registerUser({
+                name, email, password
+            })
+        }
     }
 
     return (
@@ -44,7 +62,7 @@ const Register = () => {
                 {
                     !values.isMember && <FormRow
                         name='name' type='text'
-                        value={values.name} labelText='Full name'
+                        value={values.name} labelText='name'
                         onChange={onChangeHandler}
                     />
                 }
@@ -62,7 +80,7 @@ const Register = () => {
                     onChange={onChangeHandler}
                 />
 
-                <button type="submit" className="btn btn-block">Submit</button>
+                <button type="submit" className="btn btn-block" disabled={isLoading}>Submit</button>
 
                 {values.isMember
                     ? <p>Not a member yet? <button type="button" onClick={toggleHandler} className='member-btn'>Register</button></p>

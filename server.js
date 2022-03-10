@@ -10,8 +10,17 @@ import ConnectDatabase from './db/connect-db.js';
 
 // routers
 import authRouter from './routes/auth-routes.js'
-
 import jobsRouter from './routes/job-routes.js'
+
+//installed middleware
+
+//for security purposes data sharing is not allowed from different origin that's why it causes cors error and to get rid of cors(cross-origin-resource-sharing) errors we can use a package called cors and run it as a middleware
+
+// import cors from 'cors';
+// app.use(cors());
+
+//we had one more option we can go with proxy option in this case we can set proxy as our domain prefix and we need not to write full domain as well, so we are going with proxy option that's why i commented cors middleware
+//https://create-react-app.dev/docs/proxying-api-requests-in-development/(read here for proxy realted info)
 
 //middleware
 
@@ -22,8 +31,12 @@ import errorHandleMiddleware from './middlewares/error-handle.js';
 app.use(express.json()) //this is a in-built middleware from express which provide us json data in case of patch and post requests
 
 app.get('/', (req, res, next) => {
-    res.send('Welcome');
+    res.json({ msg: 'welcome' });
 })
+
+app.get('/api/v1', (req, res, next) => {
+    res.json({ msg: 'welcome' });
+}) //for demo purpose only
 
 app.use('/api/v1/auth', authRouter);
 
