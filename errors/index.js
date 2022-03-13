@@ -1,5 +1,6 @@
 import BadRequestError from './bad-request.js'
 import NotFoundError from './not-found.js'
-import customAPIError from './custom-api.js'
+import UnAuthenticatedError from './unauthenticated.js';
 
-export { BadRequestError, NotFoundError, customAPIError };
+
+export { BadRequestError, NotFoundError, UnAuthenticatedError };

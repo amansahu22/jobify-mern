@@ -14,6 +14,13 @@ import jobsRouter from './routes/job-routes.js'
 
 //installed middleware
 
+import morgan from 'morgan';
+
+if (process.env.NODE_ENV !== 'production') {
+    app.use(morgan('dev'))
+}
+
+
 //for security purposes data sharing is not allowed from different origin that's why it causes cors error and to get rid of cors(cross-origin-resource-sharing) errors we can use a package called cors and run it as a middleware
 
 // import cors from 'cors';
