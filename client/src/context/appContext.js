@@ -12,6 +12,9 @@ import {
   LOGIN_USER_ERROR,
   TOGGLE_SIDEBAR,
   LOGOUT_USER,
+  UPDATE_USER_BEGIN,
+  UPDATE_USER_SUCCESS,
+  UPDATE_USER_ERROR,
 } from "./actions";
 
 const user = localStorage.getItem("user");
@@ -34,6 +37,14 @@ const AppContext = React.createContext();
 
 const AppContextProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
+
+  //creating a nstance of axios if we wanr we can set the header here as well but we want to control our resonse status code that's why we can go with axios interceptor
+  const authFetch = axios.create({
+    baseURL: "/api/v1/",
+    // headers:{
+    //   Authorization:`Bearer ${state.token}`
+    // }
+  });
 
   const toggleSidebar = () => {
     dispatch({ type: TOGGLE_SIDEBAR });
@@ -128,6 +139,58 @@ const AppContextProvider = ({ children }) => {
     removeDataFromLocalStorage();
   };
 
+  //request interceptor
+  authFetch.interceptors.request.use(
+    (config) => {
+      config.headers.common["Authorization"] = `Bearer ${state.token}`;
+
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
+
+  //response interceptor
+
+  authFetch.interceptors.response.use(
+    (response) => {
+      return response;
+    },
+    (error) => {
+      console.log(error.response);
+
+      if (error.response.status === 401) {
+        logoutUser();
+      }
+
+      return Promise.reject(error);
+    }
+  );
+
+  const updateUser = async (currentUser) => {
+    dispatch({ type: UPDATE_USER_BEGIN });
+    try {
+      const { data } = await authFetch.patch("auth/update-user", currentUser);
+      const { user, token, location } = data;
+      dispatch({
+        type: UPDATE_USER_SUCCESS,
+        payload: { user, token, location },
+      });
+      addDataToLocalStorage({ user, token, location });
+    } catch (error) {
+      //because we have delay in clering alert so if token is expired and we try to do request where token requires in that case it would show 401(unauthorized error) nut in case of 401 we are logging out our user so no need to show alert there otherwise it would stay there for 3 seconds
+      if (error.response.status !== 401) {
+        dispatch({
+          type: UPDATE_USER_ERROR,
+          payload: { msg: error.response.data.msg },
+        });
+      }
+    }
+
+    clearAlert();
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -137,6 +200,7 @@ const AppContextProvider = ({ children }) => {
         loginUser,
         toggleSidebar,
         logoutUser,
+        updateUser,
       }}
     >
       {children}
