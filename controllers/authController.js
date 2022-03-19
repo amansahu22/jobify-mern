@@ -69,9 +69,32 @@ const Login = async (req, res) => {
   res.status(StatusCodes.OK).json({ user, token, location: user.location });
 };
 
-const updateUser = (req, res) => {
-  res.send("updateUser");
-  console.log(req.user.userId);
+const updateUser = async (req, res) => {
+  const { email, name, lastName, location } = req.body;
+
+  if (!email || !name || !lastName || !location) {
+    throw new BadRequestError("Please Provide all values");
+  }
+  //from our token check(auth) middleware we have userId so using that id we would find the user
+  const user = await User.findOne({ _id: req.user.userId });
+  //here we can go with the findOneandUpdate in that case we would not call the .pre method because .pre method on User modal will be called generally when new User created or we call user.save method
+  console.log(user);
+
+  user.email = email;
+  user.name = name;
+  user.lastName = lastName;
+  user.location = location;
+
+  await user.save();
+
+  //it's totally optional to create new token or go with the existing one here i am creating new token
+
+  const token = user.createJWT();
+  res.status(StatusCodes.OK).json({
+    user,
+    token,
+    location: user.location,
+  });
 };
 
 export { Register, Login, updateUser };
