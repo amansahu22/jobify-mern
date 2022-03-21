@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start":"nodemon server",
+    "start": "nodemon server",
     "server": "nodemon server --ignore client",
     "client": "npm start --prefix client",
     "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\" "
@@ -31,6 +31,7 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.2.4",
     "morgan": "^1.10.0",
+    "path": "^0.12.7",
     "validator": "^13.7.0"
   },
   "devDependencies": {
