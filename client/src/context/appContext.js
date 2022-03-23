@@ -20,6 +20,8 @@ import {
   CREATE_JOB_BEGIN,
   CREATE_JOB_SUCCESS,
   CREATE_JOB_ERROR,
+  GET_JOBS_BEGIN,
+  GET_JOBS_SUCCESS,
 } from "./actions";
 
 const user = localStorage.getItem("user");
@@ -44,6 +46,10 @@ const initialState = {
   jobLocation: location || "",
   isEditing: false,
   editJobid: "",
+  jobs: [],
+  totalJobs: 0,
+  noOfPages: 1,
+  page: 1,
 };
 
 const AppContext = React.createContext();
@@ -239,6 +245,40 @@ const AppContextProvider = ({ children }) => {
     clearAlert();
   };
 
+  const getAllJobs = async () => {
+    let url = `/jobs`;
+    dispatch({ type: GET_JOBS_BEGIN });
+
+    try {
+      const response = await authFetch.get(url);
+      const data = response.data;
+
+      const { jobs, totalJobs, noOfPages } = data;
+      dispatch({
+        type: GET_JOBS_SUCCESS,
+        payload: {
+          jobs,
+          totalJobs,
+          noOfPages,
+        },
+      });
+    } catch (error) {
+      console.log(error.response);
+      //logically only 401 and 500 status error could occurs in this case and in those cases we do not want to show alert instead we will directly logout the user
+      // logoutUser()
+    }
+    //we are not showing any alert in this method but if there is some from previous then for precaution we can clear here
+    clearAlert();
+  };
+
+  const editJobHandler = (id) => {
+    alert(id);
+  };
+
+  const deleteJobHandler = (id) => {
+    alert(id);
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -252,6 +292,9 @@ const AppContextProvider = ({ children }) => {
         handleJobInputChange,
         clearJobInputs,
         createJob,
+        getAllJobs,
+        editJobHandler,
+        deleteJobHandler,
       }}
     >
       {children}

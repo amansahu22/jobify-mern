@@ -17,6 +17,8 @@ import {
   CREATE_JOB_BEGIN,
   CREATE_JOB_SUCCESS,
   CREATE_JOB_ERROR,
+  GET_JOBS_BEGIN,
+  GET_JOBS_SUCCESS,
 } from "./actions";
 
 import { initialState } from "./appContext";
@@ -168,7 +170,6 @@ const reducer = (state, action) => {
       jobLocation: state.userLocation || "",
       isEditing: false,
       editJobid: "",
-      isAlertShown: false,
     };
   }
 
@@ -196,6 +197,24 @@ const reducer = (state, action) => {
       isAlertShown: true,
       alertType: "danger",
       alertText: action.payload.msg,
+    };
+  }
+
+  if (action.type === GET_JOBS_BEGIN) {
+    return {
+      ...state,
+      isLoading: true,
+      isAlertShown: false, //if there is any alert on the page while all jobs page loading we are removing that alert
+    };
+  }
+
+  if (action.type === GET_JOBS_SUCCESS) {
+    return {
+      ...state,
+      isLoading: false,
+      jobs: action.payload.jobs,
+      noOfPages: action.payload.noOfPages,
+      totalJobs: action.payload.totalJobs,
     };
   }
 
