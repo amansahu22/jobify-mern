@@ -23,6 +23,10 @@ import {
   GET_JOBS_BEGIN,
   GET_JOBS_SUCCESS,
   SET_EDIT_JOB,
+  DELETE_JOB_BEGIN,
+  EDIT_JOB_BEGIN,
+  EDIT_JOB_SUCCESS,
+  EDIT_JOB_ERROR,
 } from "./actions";
 
 const user = localStorage.getItem("user");
@@ -264,24 +268,58 @@ const AppContextProvider = ({ children }) => {
         },
       });
     } catch (error) {
-      console.log(error.response);
+      // console.log(error.response);
       //logically only 401 and 500 status error could occurs in this case and in those cases we do not want to show alert instead we will directly logout the user
-      // logoutUser()
+      logoutUser();
     }
     //we are not showing any alert in this method but if there is some from previous then for precaution we can clear here
     clearAlert();
   };
 
   const editJobHandler = (id) => {
-    dispatch({type:SET_EDIT_JOB,payload:{id}})
+    dispatch({ type: SET_EDIT_JOB, payload: { id } });
   };
 
-  const editJob=()=>{
-    console.log('edit job')
-  }
+  const editJob = async () => {
+    dispatch({ type: EDIT_JOB_BEGIN });
+    const {
+      company,
+      position,
+      jobLocation,
+      jobType,
+      status,
+      editJobid: id,
+    } = state;
+    try {
+      await authFetch.patch(`/jobs/${id}`, {
+        company,
+        position,
+        status,
+        jobLocation,
+        jobType,
+      });
+      dispatch({ type: EDIT_JOB_SUCCESS, payload: "Successfully! job edited" });
+      dispatch({ type: ClEAR_JOB_INPUT });
+    } catch (error) {
+      if (error.status === 401) return;
+      dispatch({
+        type: EDIT_JOB_ERROR,
+        payload: { msg: error.response.data.msg },
+      });
+    }
+  };
 
-  const deleteJobHandler = (id) => {
-    alert(id);
+  const deleteJobHandler = async (jobId) => {
+    dispatch({ type: DELETE_JOB_BEGIN });
+
+    try {
+      await authFetch.delete(`/jobs/${jobId}`);
+      //we are deleting the job from database and to keep the database and localStorage in sync we will fetch all the jobs again so that our localStorage can update
+      getAllJobs();
+    } catch (error) {
+      // console.log(error.response.data.msg);
+      logoutUser();
+    }
   };
 
   return (
