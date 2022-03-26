@@ -18,6 +18,7 @@ const AddJob = () => {
     handleJobInputChange,
     clearJobInputs,
     createJob,
+    editJob,
   } = useAppContext();
 
   const handleInputChange = (e) => {
@@ -34,6 +35,7 @@ const AddJob = () => {
     }
 
     if (isEditing) {
+      editJob();
       return;
     }
 
@@ -118,19 +120,21 @@ const AddJob = () => {
               onClick={formSubmitHandler}
               disabled={isLoading}
             >
-              submit
+              {isEditing ? "save changes" : "submit"}
             </button>
-            <button
-              className="btn btn-block clear-btn"
-              type="clear"
-              onClick={(event) => {
-                //at first we have to prevent the default behaviour of form because this button is inside of form so pressing it would cost us refresh of page
-                event.preventDefault();
-                clearJobInputs();
-              }}
-            >
-              clear
-            </button>
+            {!isEditing && (
+              <button
+                className="btn btn-block clear-btn"
+                type="clear"
+                onClick={(event) => {
+                  //at first we have to prevent the default behaviour of form because this button is inside of form so pressing it would cost us refresh of page
+                  event.preventDefault();
+                  clearJobInputs();
+                }}
+              >
+                clear
+              </button>
+            )}
           </div>
         </div>
       </form>

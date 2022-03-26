@@ -22,6 +22,7 @@ import {
   CREATE_JOB_ERROR,
   GET_JOBS_BEGIN,
   GET_JOBS_SUCCESS,
+  SET_EDIT_JOB,
 } from "./actions";
 
 const user = localStorage.getItem("user");
@@ -272,8 +273,12 @@ const AppContextProvider = ({ children }) => {
   };
 
   const editJobHandler = (id) => {
-    alert(id);
+    dispatch({type:SET_EDIT_JOB,payload:{id}})
   };
+
+  const editJob=()=>{
+    console.log('edit job')
+  }
 
   const deleteJobHandler = (id) => {
     alert(id);
@@ -295,6 +300,7 @@ const AppContextProvider = ({ children }) => {
         getAllJobs,
         editJobHandler,
         deleteJobHandler,
+        editJob,
       }}
     >
       {children}
