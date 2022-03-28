@@ -27,6 +27,8 @@ import {
   EDIT_JOB_BEGIN,
   EDIT_JOB_SUCCESS,
   EDIT_JOB_ERROR,
+  SHOW_STATS_BEGIN,
+  SHOW_STATS_SUCCESS,
 } from "./actions";
 
 const user = localStorage.getItem("user");
@@ -55,6 +57,8 @@ const initialState = {
   totalJobs: 0,
   noOfPages: 1,
   page: 1,
+  stats: {},
+  monthlyApplications: [],
 };
 
 const AppContext = React.createContext();
@@ -322,6 +326,26 @@ const AppContextProvider = ({ children }) => {
     }
   };
 
+  const fetchStats = async () => {
+    dispatch({ type: SHOW_STATS_BEGIN });
+
+    try {
+      const { data } = await authFetch.get("/jobs/stats");
+      const { defaultStats: stats, monthlyApplications } = data;
+      console.log(stats);
+
+      dispatch({
+        type: SHOW_STATS_SUCCESS,
+        payload: { stats, monthlyApplications },
+      });
+    } catch (error) {
+      console.log(error.response);
+      //generally 401 aur 500 yhi error ayenge in that cases we would simply logout the user
+      // logoutUser()
+    }
+    clearAlert();
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -339,6 +363,7 @@ const AppContextProvider = ({ children }) => {
         editJobHandler,
         deleteJobHandler,
         editJob,
+        fetchStats,
       }}
     >
       {children}

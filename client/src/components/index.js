@@ -11,7 +11,8 @@ import SmallSidebar from "./SmallSidebar";
 import SearchComponent from "./SearchComponent";
 import JobsContainer from "./JobsContainer";
 import Loading from "./Loading";
-
+import StatsContainer from "./StatsContainer";
+import ChartsContainer from "./ChartsContainer";
 export {
   Logo,
   FormRow,
@@ -22,4 +23,6 @@ export {
   SearchComponent,
   JobsContainer,
   Loading,
+  StatsContainer,
+  ChartsContainer,
 };

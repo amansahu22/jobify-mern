@@ -3,6 +3,23 @@ import { StatusCodes } from "http-status-codes";
 import { BadRequestError, NotFoundError } from "../errors/index.js";
 
 import checkPermission from "../utils/checkPermission.js";
+import mongoose from "mongoose";
+
+const monthName = {
+  jan: 1,
+  feb: 2,
+  mar: 3,
+  apr: 4,
+  may: 5,
+  june: 6,
+  july: 7,
+  aug: 8,
+  sep: 9,
+  oct: 10,
+  nov: 11,
+  dec: 12,
+};
+
 const createJob = async (req, res) => {
   const { company, position } = req.body;
 
@@ -72,8 +89,70 @@ const updateJob = async (req, res) => {
   res.status(StatusCodes.OK).json({ updatedJob });
 };
 
-const showStats = (req, res) => {
-  res.send("show stats");
+const showStats = async (req, res) => {
+  const user = req.user.userId;
+  //remember userId is of type string and we want it as a mongoose objectId
+  const userObjectId = mongoose.Types.ObjectId(user);
+
+  // aggregation pipeline(https://docs.mongodb.com/manual/core/aggregation-pipeline/)
+  let stats = await Job.aggregate([
+    { $match: { createdBy: userObjectId } },
+    { $group: { _id: "$status", count: { $sum: 1 } } },
+  ]);
+
+  //just to format our data
+  stats = stats.reduce((final, current) => {
+    const { _id: title, count } = current;
+    final[title] = count;
+    return final;
+  }, {});
+
+  const defaultStats = {
+    pending: stats.pending || 0, //if there is pending field inside of stats then set that value else set as 0
+    interview: stats.interview || 0,
+    decline: stats.decline || 0,
+  };
+
+  let monthlyApplications = await Job.aggregate([
+    { $match: { createdBy: mongoose.Types.ObjectId(req.user.userId) } },
+    {
+      $group: {
+        _id: {
+          year: {
+            $year: "$createdAt",
+          },
+          month: {
+            $month: "$createdAt",
+          },
+        },
+        count: { $sum: 1 },
+      },
+    },
+    { $sort: { "_id.year": -1, "_id.month": -1 } }, //-1 represents latest entries
+    { $limit: 6 }, //give only 6 entries
+  ]);
+
+  //formating data
+  monthlyApplications = monthlyApplications.reduce((final, current) => {
+    let {
+      _id: { month, year },
+      count,
+    } = current;
+
+    for (let i in monthName) {
+      if (monthName[i] === month) {
+        month = i;
+      }
+    }
+    const date = `${month} ${year}`;
+    final.push({ date, count });
+    return final;
+  }, []).reverse();
+
+  res.status(StatusCodes.OK).json({
+    defaultStats,
+    monthlyApplications,
+  });
 };
 
 export { createJob, deleteJob, getAllJobs, updateJob, showStats };
