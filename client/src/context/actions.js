@@ -53,3 +53,5 @@ export const SHOW_STATS_BEGIN = "SHOW_STATS_BEGIN";
 export const SHOW_STATS_SUCCESS = "SHOW_STATS_SUCCESS";
 
 export const CLEAR_FILTERS = "CLEAR_FILTERS";
+
+export const PAGE_CHANGE = "PAGE_CHANGE";

@@ -30,6 +30,7 @@ import {
   SHOW_STATS_BEGIN,
   SHOW_STATS_SUCCESS,
   CLEAR_FILTERS,
+  PAGE_CHANGE,
 } from "./actions";
 
 const user = localStorage.getItem("user");
@@ -261,8 +262,8 @@ const AppContextProvider = ({ children }) => {
   };
 
   const getAllJobs = async () => {
-    const { search, searchJobType, searchStatus, sort } = state;
-    let url = `/jobs?status=${searchStatus}&jobType=${searchJobType}&sort=${sort}`;
+    const { page, search, searchJobType, searchStatus, sort } = state;
+    let url = `/jobs?page=${page}&status=${searchStatus}&jobType=${searchJobType}&sort=${sort}`;
 
     if (search) {
       url = url + `&search=${search}`;
@@ -362,6 +363,13 @@ const AppContextProvider = ({ children }) => {
     dispatch({ type: CLEAR_FILTERS });
   };
 
+  const pageChange = (page) => {
+    dispatch({
+      type: PAGE_CHANGE,
+      payload: { page },
+    });
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -381,6 +389,7 @@ const AppContextProvider = ({ children }) => {
         editJob,
         fetchStats,
         clearSearch,
+        pageChange,
       }}
     >
       {children}

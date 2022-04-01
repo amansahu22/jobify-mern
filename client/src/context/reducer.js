@@ -27,6 +27,7 @@ import {
   SHOW_STATS_BEGIN,
   SHOW_STATS_SUCCESS,
   CLEAR_FILTERS,
+  PAGE_CHANGE,
 } from "./actions";
 
 import { initialState } from "./appContext";
@@ -164,6 +165,7 @@ const reducer = (state, action) => {
   if (action.type === HANDLE_JOB_INPUT_CHANGE) {
     return {
       ...state,
+      page: 1,
       [action.payload.name]: action.payload.value,
     };
   }
@@ -301,6 +303,13 @@ const reducer = (state, action) => {
       sort: "latest",
       searchStatus: "all",
       searchJobType: "all",
+    };
+  }
+
+  if (action.type === PAGE_CHANGE) {
+    return {
+      ...state,
+      page: action.payload.page,
     };
   }
 
