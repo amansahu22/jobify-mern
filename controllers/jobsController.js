@@ -54,7 +54,43 @@ const deleteJob = async (req, res) => {
 
 const getAllJobs = async (req, res) => {
   const user = req.user.userId;
-  const jobs = await Job.find({ createdBy: user });
+
+  const { search, status, jobType, sort } = req.query;
+
+  const queryObject = {
+    createdBy: user,
+  };
+
+  if (status !== "all") {
+    queryObject.status = status;
+  }
+
+  if (jobType !== "all") {
+    queryObject.jobType = jobType;
+  }
+
+  if (search) {
+    queryObject.company = { $regex: search, $options: "i" };
+    //option i means case-insensitive
+  }
+
+  //No Await then it will not return the response it will only return the query
+  let result = Job.find(queryObject);
+
+  //chain sort conditions
+  if (sort === "latest") {
+    result = result.sort("-createdAt");
+  }
+  if (sort === "oldest") {
+    result = result.sort("createdAt");
+  }
+  if (sort === "a-z") {
+    result = result.sort("company");
+  }
+  if (sort === "z-a") {
+    result = result.sort("-company");
+  }
+  const jobs = await result;
 
   res.status(StatusCodes.OK).json({
     jobs,
@@ -133,21 +169,23 @@ const showStats = async (req, res) => {
   ]);
 
   //formating data
-  monthlyApplications = monthlyApplications.reduce((final, current) => {
-    let {
-      _id: { month, year },
-      count,
-    } = current;
+  monthlyApplications = monthlyApplications
+    .reduce((final, current) => {
+      let {
+        _id: { month, year },
+        count,
+      } = current;
 
-    for (let i in monthName) {
-      if (monthName[i] === month) {
-        month = i;
+      for (let i in monthName) {
+        if (monthName[i] === month) {
+          month = i;
+        }
       }
-    }
-    const date = `${month} ${year}`;
-    final.push({ date, count });
-    return final;
-  }, []).reverse();
+      const date = `${month} ${year}`;
+      final.push({ date, count });
+      return final;
+    }, [])
+    .reverse();
 
   res.status(StatusCodes.OK).json({
     defaultStats,
