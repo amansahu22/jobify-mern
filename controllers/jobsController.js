@@ -90,12 +90,23 @@ const getAllJobs = async (req, res) => {
   if (sort === "z-a") {
     result = result.sort("-company");
   }
+
+  //pagination
+
+  const limit = Number(req.query.limit) || 10; //in our cases we will set this as default 10.
+  const page = Number(req.query.page) || 1;
+  const skip = (page - 1) * limit;
+
+  result = result.skip(skip).limit(limit); //skip and limit methods are provided by mongoDB
   const jobs = await result;
+
+  const totalJobs = await Job.countDocuments(queryObject);
+  const noOfPages = Math.ceil(totalJobs / limit);
 
   res.status(StatusCodes.OK).json({
     jobs,
-    totalJobs: jobs.length,
-    noOfPages: 1,
+    totalJobs,
+    noOfPages,
   });
 };
 
