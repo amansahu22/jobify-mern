@@ -5,6 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "build-client": "cd client && npm run build",
     "start": "nodemon server",
     "server": "nodemon server --ignore client",
     "client": "npm start --prefix client",
