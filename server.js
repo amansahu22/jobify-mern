@@ -16,6 +16,10 @@ import jobsRouter from "./routes/job-routes.js";
 
 import morgan from "morgan";
 
+import path from "path";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+
 if (process.env.NODE_ENV !== "production") {
   app.use(morgan("dev"));
 }
@@ -36,18 +40,22 @@ import authenticateUser from "./middlewares/auth.js";
 
 app.use(express.json()); //this is a in-built middleware from express which provide us json data in case of patch and post requests
 
-app.get("/", (req, res, next) => {
-  res.json({ msg: "welcome" });
-});
-
-app.get("/api/v1", (req, res, next) => {
-  res.json({ msg: "welcome" });
-}); //for demo purpose only
+//since we rae using es6 module and in es6 module dirname is not directly accessible(but it is accessible in common js)
+const __dirname = dirname(fileURLToPath(import.meta.url));
+//only when ready to deploy
+app.use(express.static(path.resolve(__dirname, "./client/build")));
 
 app.use("/api/v1/auth", authRouter);
 
 //we only want to access user this routes when user is authenticated(token is present)
 app.use("/api/v1/jobs", authenticateUser, jobsRouter);
+
+
+//now our frontend will be serverd by express and every incoming get request(if it does not matches will job and user route ) will be redirected to the index.html(present inside of production ready build folder) and inside of index.html react-router is present which will take care of the further routing
+
+app.get('*',(req,res)=>{
+  res.sendFile(path.resolve(__dirname,'./client/build', 'index.html'))
+})
 
 app.use(notFoundMiddleware);
 //it means express after listening for all above routes come on this and use can serve for can type of req(get,post...) and for any url.
